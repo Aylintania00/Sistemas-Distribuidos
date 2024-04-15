@@ -1,0 +1,64 @@
+import random
+
+class Nodo:
+    def __init__(self, id):
+        self.id = id
+        self.infectado = False
+
+    def infectar(self):
+        self.infectado = True
+
+    def esta_infectado(self):
+        return self.infectado
+
+class RedNodos:
+    def __init__(self, n):
+        self.nodos = [Nodo(i) for i in range(n)]
+        self.nodos[random.randint(0, n-1)].infectar()  # Inicializar un nodo infectado aleatorio
+
+    def pull(self):
+        # Enfoque Pull: un nodo infectado intenta infectar a sus vecinos no infectados
+        for nodo in self.nodos:
+            if nodo.esta_infectado():
+                for vecino in self.vecinos(nodo):
+                    if not vecino.esta_infectado():
+                        vecino.infectar()
+
+    def push(self):
+        # Enfoque Push: un nodo no infectado intenta infectarse de sus vecinos infectados
+        for nodo in self.nodos:
+            if not nodo.esta_infectado():
+                for vecino in self.vecinos(nodo):
+                    if vecino.esta_infectado():
+                        nodo.infectar()
+                        break
+
+    def pull_push(self):
+        # Enfoque Pull-Push: Combinación de Pull y Push
+        self.pull()
+        self.push()
+
+    def vecinos(self, nodo):
+        # Aquí deberías definir cómo se conectan los nodos en tu red (vecindario)
+        # Por simplicidad, supondremos una red completamente conectada en este ejemplo
+        return self.nodos
+
+    def nodos_infectados(self):
+        return [nodo for nodo in self.nodos if nodo.esta_infectado()]
+
+    def porcentaje_infectados(self):
+        return len(self.nodos_infectados()) / len(self.nodos) * 100
+
+# Simulación
+n = 100  # Número de nodos
+red = RedNodos(n)
+
+# Ejecutar los diferentes enfoques durante un número determinado de iteraciones
+iteraciones = 10
+for i in range(iteraciones):
+    red.pull()
+    red.push()
+    red.pull_push()
+
+# Resultados
+print("Porcentaje de nodos infectados:", red.porcentaje_infectados(), "%")
